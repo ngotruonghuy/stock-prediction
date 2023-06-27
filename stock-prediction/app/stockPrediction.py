@@ -29,18 +29,23 @@ import pickle
 from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.techindicators import TechIndicators
 
-
+#Tạo 1 ứng dụng dash bằng Dash framework
 app = dash.Dash()
 server = app.server
 
+#Tạo 1 đối tượng TimeSeries từ Alpha Vantage API bằng cách cung cấp khóa API ('key') và định dạng dầu ra
 ts = TimeSeries(key='D8JHWTNSXO7M9VKV', output_format='pandas')
 ti = TechIndicators(key='D8JHWTNSXO7M9VKV', output_format='pandas')
 
 #Lấy dữ liệu giao dịch và chỉ số kỹ thuật từ Alpha Vantage cho công ty được chỉ định và lưu nó vào CSV
 def update_data(companyName):
+
+    #lấy dữ liệu giao dịch
     data = ts.get_intraday(symbol=companyName,interval='15min', outputsize='full') # data
     data = data[0]
     data.rename(lambda x: x[2:].strip(), axis='columns', inplace=True)
+
+    #Lấy các chỉ số kĩ thuật từ Alpha Vantage
     indicator_roc = ti.get_roc(symbol=companyName, interval='15min', time_period=20) # roc
     indicator_roc = indicator_roc[0]
     indicator_sma = ti.get_sma(symbol=companyName, interval='15min', time_period=20) # sma
@@ -49,12 +54,17 @@ def update_data(companyName):
     indicator_rsi = indicator_rsi[0]
     indicator_bb = ti.get_bbands(symbol=companyName, interval='15min', time_period=20) # bbands
     indicator_bb = indicator_bb[0]
+
+    # Sử dụng phương thức merge để hợp nhất các khung dữ liệu thành 1 khung dữ liệu gốc (original_df)
     original_df = pd.merge(data, indicator_roc, on='date', how='inner')
     original_df = pd.merge(original_df, indicator_sma, on='date', how='inner')
     original_df = pd.merge(original_df, indicator_rsi, on='date', how='inner')
     original_df = pd.merge(original_df, indicator_bb, on='date', how='inner')
+
+    #Đảo ngược thứ tự các hàng trong khung dữ liệu gốc (original_df)
     original_df = original_df.iloc[::-1]
-    original_df.to_csv('../DATA/' + companyName +'.csv')
+    #Lưu vào file csv
+    original_df.to_csv('../data/' + companyName +'.csv')
 
 # Nhận danh sách các chỉ số kỹ thuật và thay thế chuỗi KBANDS bằng tên các chỉ số thực tế của Bollinger Bands
 def replace_bbands(the_list):
@@ -110,7 +120,7 @@ def xgboost_predict_future(data, model, indicatorArr, period):
 
 
 #Tạo biến df là 1 dataframe chứa dữ liệu từ 1 file csv
-df = pd.read_csv("../DATA/MSFT.csv")
+df = pd.read_csv("../data/MSFT.csv")
 
 #Định nghĩa giao diện của ứng dụng Dash bằng cách sử dụng các thành phần HTML và Dash components
 app.layout = html.Div([
@@ -123,15 +133,15 @@ app.layout = html.Div([
             html.Div([
                 
                 html.Div([                
-                    html.Button('Update', 
+                    html.Button('UPDATE', 
                      id='update_button', 
-                     style={"background-color": "#5DADE2", "border": "none", "color": "white", 
+                     style={"background-color": "#FFFB4F", "border": "none", "color": "black", 
                             "padding": "15px 32px", "text-align": "center", "text-decoration": "none", 
                             "display": "inline-block", "font-size": "16px", 
                             "margin-left": "auto", "margin-top": "10px", 
                             "margin-bottom": "10px", "margin-right": "auto", "width": "20%"})
                 ], style={"text-align": "center"}),
-                
+
                 html.Div(id='something', children=''),
                 
                 html.H1("Stock Price", 
@@ -197,7 +207,7 @@ app.layout = html.Div([
                 html.Div([                
                     html.Button('Predict', 
                      id='predict_button', 
-                     style={"background-color": "#5DADE2", "border": "none", "color": "white", 
+                     style={"background-color": "#FFFB4F", "border": "none", "color": "white", 
                             "padding": "15px 32px", "text-align": "center", "text-decoration": "none", 
                             "display": "inline-block", "font-size": "16px", 
                             "margin-left": "auto", "margin-top": "10px", 
@@ -309,10 +319,10 @@ def update_graph(selected_dropdown_value):
                ]
               )
 def update_graph(n_clicks, companyName, modelName, indicatorArr, period):
-    data = pd.read_csv("../DATA/" + companyName + '.csv')
+    data = pd.read_csv("../data/" + companyName + '.csv')
     
     # model
-    modelFileName = '../MODEL/' + modelName
+    modelFileName = '../model/' + modelName
             
     indicatorArr.sort(key = str.lower)
     
@@ -408,7 +418,7 @@ def update_graph(n_clicks, companyName, modelName, indicatorArr, period):
 @app.callback(Output('something', 'children'), [Input('update_button', 'n_clicks')] )
 def update_output(n_clicks):
     update_data('MSFT')
-    df = pd.read_csv("../DATA/MSFT.csv")
+    df = pd.read_csv("../data/MSFT.csv")
     
 
 if __name__=='__main__':
