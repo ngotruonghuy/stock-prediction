@@ -120,12 +120,13 @@ def xgboost_predict_future(data, model, indicatorArr, period):
 
 
 #Tạo biến df là 1 dataframe chứa dữ liệu từ 1 file csv
-df = pd.read_csv("../data/MSFT.csv")
+dfMSFT = pd.read_csv("../data/MSFT.csv")
+dfINTC = pd.read_csv("../data/INTC.csv")
 
 #Định nghĩa giao diện của ứng dụng Dash bằng cách sử dụng các thành phần HTML và Dash components
 app.layout = html.Div([
    
-    html.H1("Stock Price Analysis", style={"textAlign": "center"}),
+    html.H1("Stock Price Analysis Dashboard", style={"textAlign": "center"}),
    
     dcc.Tabs(id="tabs", children=[
        
@@ -145,12 +146,18 @@ app.layout = html.Div([
                 html.Div(id='something', children=''),
                 
                 html.H1("Stock Price", 
-                        style={'textAlign': 'center'}),
+                        style={'textAlign': 'center'}),         
               
                 dcc.Dropdown(id='my-dropdown',
-                             options=[{'label': 'Microsoft','value': 'MSFT'}], 
+                           
+                              options=[
+                                {'label': 'Intel','value': 'INTC'},
+                                {'label': 'Microsoft','value': 'MSFT'},
+                                {'label': 'Apple','value': 'AAPL'}, 
+                                {'label': 'Tesla','value': 'TSLA'}], 
                              multi=True,
                              value=['MSFT'],
+                            #  value=['INTC' , 'MSFT', 'AAPL', 'TSLA'],
                              style={"display": "block", "margin-left": "auto", 
                                     "margin-right": "auto", "width": "60%"}),
                 
@@ -160,9 +167,17 @@ app.layout = html.Div([
                 html.H1("Stock Market Volume", style={'textAlign': 'center'}),
          
                 dcc.Dropdown(id='my-dropdown2',
-                             options=[{'label': 'Microsoft','value': 'MSFT'}], 
+                            #  options=[{'label': 'Microsoft','value': 'MSFT'}], 
+                            #  multi=True,
+                            #  value=['MSFT'],
+                              options=[
+                                {'label': 'Intel','value': 'INTC'},
+                                {'label': 'Microsoft','value': 'MSFT'},
+                                {'label': 'Apple','value': 'AAPL'}, 
+                                {'label': 'Tesla','value': 'TSLA'}], 
                              multi=True,
                              value=['MSFT'],
+                            #    value=['INTC' , 'MSFT', 'AAPL', 'TSLA'],
                              style={"display": "block", "margin-left": "auto", 
                                     "margin-right": "auto", "width": "60%"}),
                 dcc.Graph(id='volume')
@@ -175,22 +190,31 @@ app.layout = html.Div([
             html.Div([
                 
                 dcc.Dropdown(id='dropdown-company',
-                     options=[{'label': 'Microsoft','value': 'MSFT'}], 
-                     multi=False, placeholder="Choose company",value='MSFT',
-                     style={"margin-left": "auto", "margin-top": "10px", "margin-bottom": "10px",
+                    options=[
+                                {'label': 'Intel','value': 'INTC'},
+                                {'label': 'Microsoft','value': 'MSFT'},
+                                {'label': 'Apple','value': 'AAPL'}, 
+                                {'label': 'Tesla','value': 'TSLA'}], 
+                    multi=False,
+                    placeholder="Chọn công ty",
+                    value='INTC',
+                    style={"margin-left": "auto", "margin-top": "10px", "margin-bottom": "10px",
                             "margin-right": "auto", "width": "80%"}),
                 
                 dcc.Dropdown(id='dropdown-model',
                      options=[{'label': 'Extreme Gradient Boosting (XGBOOST)', 'value': 'XGBOOST'},
                               {'label': 'Recurrent Neural Network (RNN)','value': 'RNN'}, 
                               {'label': 'Long Short Term Memory (LSTM)', 'value': 'LSTM'}], 
-                     multi=False, placeholder="Choose model",value='LSTM',
+                     multi=False, 
+                     placeholder="Chọn phương pháp dự đoán",
+                     value='LSTM',
                      style={"margin-left": "auto", "margin-top": "10px", "margin-bottom": "10px",
                             "margin-right": "auto", "width": "80%"}),
                 
                 dcc.Dropdown(id='dropdown-period',
-                     options=[{'label': '15 minutes', 'value': 15}], 
-                     multi=False, placeholder="Choose time period",value=15,
+                     options=[{'label': '15 phút', 'value': 15}], 
+                     multi=False, placeholder="Chọn khoảng thời gian",
+                     value=15,
                      style={"margin-left": "auto", "margin-top": "10px", "margin-bottom": "10px",
                             "margin-right": "auto", "width": "80%"}),
   
@@ -228,10 +252,9 @@ app.layout = html.Div([
 
 #Nhận vào từ dropdown 'my-dropdown' (Chọn mã cổ phiếu) và trả về biểu đồ giá cổ phiếu dựa trên mã cổ phiếu đã chọn
 @app.callback(Output('stockprice', 'figure'),
-              [Input('my-dropdown', 'value')])
-
-def update_graph(selected_dropdown):
-    dropdown = {"MSFT": "Microsoft"}
+              [Input('my-dropdown', 'value')]) 
+def update_graph(selected_dropdown, df):
+    dropdown = {"MSFT": "Microsoft", "INTC": "Intel", "AAPL": "Apple", "TSLA": "Tesla"}
     trace1 = []
     trace2 = []
     trace3 = []
@@ -260,8 +283,9 @@ def update_graph(selected_dropdown):
     traces = [trace1, trace2, trace3, trace4]
     data = [val for sublist in traces for val in sublist]
     figure = {'data': data,
-              'layout': go.Layout(colorway=["#5E0DAC", '#FF4F00', '#375CB1', 
-                                            '#FF7400', '#FFF400', '#FF0056'],
+              'layout':  go.Layout(colorway=['#0074d9','#ff4136' , '#2ecc40', 
+                                             '#ff851b',  '#7fdbff','#b212ca',
+                                            '#ffde11', '#001f3f', '#39cccc'] ,
             height=600,
             title=f"Stock Prices for {', '.join(str(dropdown[i]) for i in selected_dropdown)} Over Time",
             xaxis={"title":"Date",
@@ -276,10 +300,9 @@ def update_graph(selected_dropdown):
              yaxis={"title":"Price (USD)"})}
     return figure
 
-#Nhận vào từ dropdown 'my-dropdown2' (Chọn mã cổ phiếu) và trả về biểu đồ khối lượng giao dịch dựa trên mã cổ phiếu đã chọn
 @app.callback(Output('volume', 'figure'),
               [Input('my-dropdown2', 'value')])
-def update_graph(selected_dropdown_value):
+def update_graph(selected_dropdown_value, df):
     dropdown = {"MSFT": "Microsoft",}
     trace1 = []
     for stock in selected_dropdown_value:
@@ -307,6 +330,8 @@ def update_graph(selected_dropdown_value):
              yaxis={"title":"Transactions Volume"})}
     return figure
 
+
+
 #Nhận vào từ các dropdown và nút nhấn trong tab "Stock Prediction" và trả về biểu đồ dự đoán giá cổ phiếu dựa trên mô hình và các chỉ số đã chọn
 @app.callback(    
     Output('predicted_graph', 'figure'),
@@ -318,14 +343,11 @@ def update_graph(selected_dropdown_value):
                    State('dropdown-period', 'value')
                ]
               )
-def update_graph(n_clicks, companyName, modelName, indicatorArr, period):
+def update_graph(n_clicks, companyName, modelName, indicatorArr, period, df):
     data = pd.read_csv("../data/" + companyName + '.csv')
     
     # model
     modelFileName = '../model/' + modelName
-            
-    indicatorArr.sort(key = str.lower)
-    
     for indicator in indicatorArr:
         if indicator == 'close':
             continue
@@ -414,11 +436,13 @@ def update_graph(n_clicks, companyName, modelName, indicatorArr, period):
     }
     return figure
 
-#Nhận đầu vào từ nút nhấn update_button và cập nhật dữ liệu cho mã cổ phiếu MSDT (Microsoft) thông qua hàm update_data
+# #Nhận đầu vào từ nút nhấn update_button và cập nhật dữ liệu cho mã cổ phiếu MSDT (Microsoft) thông qua hàm update_data
 @app.callback(Output('something', 'children'), [Input('update_button', 'n_clicks')] )
 def update_output(n_clicks):
     update_data('MSFT')
-    df = pd.read_csv("../data/MSFT.csv")
+    update_data('INTC')
+    dfMSFT = pd.read_csv("../data/MSFT.csv")
+    dfINTC = pd.read_csv("../data/INTC.csv")
     
 
 if __name__=='__main__':
