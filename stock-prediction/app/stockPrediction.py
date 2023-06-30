@@ -29,9 +29,142 @@ import pickle
 from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.techindicators import TechIndicators
 
+
+
+#Tạo biến df là 1 dataframe chứa dữ liệu từ 1 file csv
+dfMSFT = pd.read_csv("../data/MSFT.csv")
+dfINTC = pd.read_csv("../data/INTC.csv")
+dfAAPL = pd.read_csv("../data/AAPL.csv")
+dfTSLA = pd.read_csv("../data/TSLA.csv")
+df = pd.read_csv("../data/DATA.csv")
+
+
+# Định nghĩa ứng dụng Dash
+app = dash.Dash(__name__)
 #Tạo 1 ứng dụng dash bằng Dash framework
-app = dash.Dash()
+# app = dash.Dash()
 server = app.server
+
+#Định nghĩa giao diện của ứng dụng Dash bằng cách sử dụng các thành phần HTML và Dash components
+app.layout = html.Div([
+   
+    html.H1("Stock Price Analysis Dashboard", style={"textAlign": "center"}),
+   
+    dcc.Tabs(id="tabs", children=[
+       
+        dcc.Tab(label='Stock Data', children=[
+            html.Div([
+                
+                html.Div([                
+                    html.Button('UPDATE', 
+                     id='update_button', 
+                     style={"background-color": "#FFFB4F", "border": "none", "color": "black", 
+                            "padding": "15px 32px", "text-align": "center", "text-decoration": "none", 
+                            "display": "inline-block", "font-size": "16px", 
+                            "margin-left": "auto", "margin-top": "10px", 
+                            "margin-bottom": "10px", "margin-right": "auto", "width": "20%"})
+                ], style={"text-align": "center"}),
+
+                html.Div(id='something', children=''),
+                
+                html.H1("Stock Price", 
+                        style={'textAlign': 'center'}),         
+              
+                dcc.Dropdown(id='my-dropdown',
+                           
+                              options=[
+                                {'label': 'Intel','value': 'INTC'},
+                                {'label': 'Microsoft','value': 'MSFT'},
+                                {'label': 'Apple','value': 'AAPL'}, 
+                                {'label': 'Tesla','value': 'TSLA'}], 
+                             multi=True,
+                             value=['MSFT'],
+                             style={"display": "block", "margin-left": "auto", 
+                                    "margin-right": "auto", "width": "60%"}),
+                
+                dcc.Graph(id='stockprice'),
+                
+                
+                html.H1("Stock Market Volume", style={'textAlign': 'center'}),
+         
+                dcc.Dropdown(id='my-dropdown2',
+                              options=[
+                                {'label': 'Intel','value': 'INTC'},
+                                {'label': 'Microsoft','value': 'MSFT'},
+                                {'label': 'Apple','value': 'AAPL'}, 
+                                {'label': 'Tesla','value': 'TSLA'}], 
+                             multi=True,
+                             value=['MSFT'],
+                             style={"display": "block", "margin-left": "auto", 
+                                    "margin-right": "auto", "width": "60%"}),
+                dcc.Graph(id='volume')
+                
+            ], className="container"),
+        ]),
+  
+        
+        dcc.Tab(label='Stock Prediction',children=[
+            html.Div([
+                
+                dcc.Dropdown(id='dropdown-company',
+                    options=[
+                                {'label': 'Intel','value': 'INTC'},
+                                {'label': 'Microsoft','value': 'MSFT'},
+                                {'label': 'Apple','value': 'AAPL'}, 
+                                {'label': 'Tesla','value': 'TSLA'}], 
+                    multi=False,
+                    placeholder="Chọn công ty",
+                      value=['MSFT'],
+                    style={"margin-left": "auto", "margin-top": "10px", "margin-bottom": "10px",
+                            "margin-right": "auto", "width": "80%"}),
+                
+                dcc.Dropdown(id='dropdown-model',
+                     options=[{'label': 'Extreme Gradient Boosting (XGBOOST)', 'value': 'XGBOOST'},
+                              {'label': 'Recurrent Neural Network (RNN)','value': 'RNN'}, 
+                              {'label': 'Long Short Term Memory (LSTM)', 'value': 'LSTM'}], 
+                     multi=False, 
+                     placeholder="Chọn phương pháp dự đoán",
+                     value='LSTM',
+                     style={"margin-left": "auto", "margin-top": "10px", "margin-bottom": "10px",
+                            "margin-right": "auto", "width": "80%"}),
+                
+                dcc.Dropdown(id='dropdown-period',
+                     options=[{'label': '15 phút', 'value': 15}], 
+                     multi=False, placeholder="Chọn khoảng thời gian",
+                     value=15,
+                     style={"margin-left": "auto", "margin-top": "10px", "margin-bottom": "10px",
+                            "margin-right": "auto", "width": "80%"}),
+  
+                dcc.Dropdown(id='dropdown-indicator',
+                     options=[{'label': 'Close Price','value': 'close'},
+                              {'label': 'Price Rate of Change (ROC)','value': 'ROC'}, 
+                              {'label': 'Relative Strength Index (RSI)', 'value': 'RSI'}, 
+                              {'label': 'Simple Moving Averages (SMA)', 'value': 'SMA'},
+                              {'label': 'Bolling Bands', 'value': 'KBANDS'}], 
+                     multi=True, placeholder="Choose indicators",value=['close'],
+                     style={"margin-left": "auto", "margin-top": "10px", "margin-bottom": "10px",
+                            "margin-right": "auto", "width": "80%"}),
+                
+                html.Div([                
+                    html.Button('Predict', 
+                     id='predict_button', 
+                     style={"background-color": "#FFFB4F", "border": "none", "color": "white", 
+                            "padding": "15px 32px", "text-align": "center", "text-decoration": "none", 
+                            "display": "inline-block", "font-size": "16px", 
+                            "margin-left": "auto", "margin-top": "10px", 
+                            "margin-bottom": "10px", "margin-right": "auto", "width": "20%"})
+                ], style={"text-align": "center"}),
+
+                dcc.Graph(id='predicted_graph')
+                
+            ])                
+
+        ])
+    ])
+])
+
+
+
 
 #Tạo 1 đối tượng TimeSeries từ Alpha Vantage API bằng cách cung cấp khóa API ('key') và định dạng dầu ra
 ts = TimeSeries(key='D8JHWTNSXO7M9VKV', output_format='pandas')
@@ -119,6 +252,7 @@ def xgboost_predict_future(data, model, indicatorArr, period):
     return predictedValue
 
 
+<<<<<<< Updated upstream
 #Tạo biến df là 1 dataframe chứa dữ liệu từ 1 file csv
 df = pd.read_csv("../data/MSFT.csv")
 
@@ -223,20 +357,38 @@ app.layout = html.Div([
 
     ])
 ])
+=======
+>>>>>>> Stashed changes
 
 
 
 #Nhận vào từ dropdown 'my-dropdown' (Chọn mã cổ phiếu) và trả về biểu đồ giá cổ phiếu dựa trên mã cổ phiếu đã chọn
 @app.callback(Output('stockprice', 'figure'),
+<<<<<<< Updated upstream
               [Input('my-dropdown', 'value')])
 
 def update_graph(selected_dropdown):
     dropdown = {"MSFT": "Microsoft"}
+=======
+              [Input('my-dropdown', 'value')]) 
+def update_graph(selected_dropdown ):
+    dropdown = {"MSFT": "Microsoft", "INTC": "Intel", "AAPL": "Apple", "TSLA": "Tesla"}
+>>>>>>> Stashed changes
     trace1 = []
     trace2 = []
     trace3 = []
     trace4 = []
     for stock in selected_dropdown:
+        if stock == 'MSFT':
+            df = dfMSFT
+        elif stock == 'INTC':
+            df = dfINTC
+        elif stock == 'AAPL':
+            df = dfAAPL
+        elif stock == 'TSLA':
+            df = dfTSLA
+
+         #Sử dụng df_stock để lấy dữ liệu cho mã cổ phiếu hiện tại trong vòng lặp   
         trace1.append(
           go.Scatter(x=df["date"],
                      y=df["open"],
@@ -280,9 +432,22 @@ def update_graph(selected_dropdown):
 @app.callback(Output('volume', 'figure'),
               [Input('my-dropdown2', 'value')])
 def update_graph(selected_dropdown_value):
+<<<<<<< Updated upstream
     dropdown = {"MSFT": "Microsoft",}
+=======
+    dropdown = {"MSFT": "Microsoft", "INTC": "Intel", "AAPL": "Apple", "TSLA": "Tesla"}
+>>>>>>> Stashed changes
     trace1 = []
     for stock in selected_dropdown_value:
+        if stock == 'MSFT':
+            df = dfMSFT
+        elif stock == 'INTC':
+            df = dfINTC
+        elif stock == 'AAPL':
+            df = dfAAPL
+        elif stock == 'TSLA':
+            df = dfTSLA
+
         trace1.append(
           go.Scatter(x=df["date"],
                      y=df["volume"],
@@ -418,8 +583,16 @@ def update_graph(n_clicks, companyName, modelName, indicatorArr, period):
 @app.callback(Output('something', 'children'), [Input('update_button', 'n_clicks')] )
 def update_output(n_clicks):
     update_data('MSFT')
+<<<<<<< Updated upstream
     df = pd.read_csv("../data/MSFT.csv")
     
+=======
+    update_data('INTC')
+    update_data('AAPL')
+    update_data('TSLA')
+
+
+>>>>>>> Stashed changes
 
 if __name__=='__main__':
     app.run_server( port=8050)
