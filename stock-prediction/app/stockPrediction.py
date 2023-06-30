@@ -253,6 +253,7 @@ def xgboost_predict_future(data, model, indicatorArr, period):
 
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 #Tạo biến df là 1 dataframe chứa dữ liệu từ 1 file csv
 df = pd.read_csv("../data/MSFT.csv")
 
@@ -359,6 +360,8 @@ app.layout = html.Div([
 ])
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
 
 
@@ -433,7 +436,11 @@ def update_graph(selected_dropdown ):
               [Input('my-dropdown2', 'value')])
 def update_graph(selected_dropdown_value):
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     dropdown = {"MSFT": "Microsoft",}
+=======
+    dropdown = {"MSFT": "Microsoft", "INTC": "Intel", "AAPL": "Apple", "TSLA": "Tesla"}
+>>>>>>> Stashed changes
 =======
     dropdown = {"MSFT": "Microsoft", "INTC": "Intel", "AAPL": "Apple", "TSLA": "Tesla"}
 >>>>>>> Stashed changes
@@ -584,14 +591,20 @@ def update_graph(n_clicks, companyName, modelName, indicatorArr, period):
 def update_output(n_clicks):
     update_data('MSFT')
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     df = pd.read_csv("../data/MSFT.csv")
     
 =======
+=======
+>>>>>>> Stashed changes
     update_data('INTC')
     update_data('AAPL')
     update_data('TSLA')
 
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 if __name__=='__main__':
