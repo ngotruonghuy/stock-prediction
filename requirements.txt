@@ -101,6 +101,7 @@ six==1.15.0
 sklearn==0.0
 sniffio==1.2.0
 tenacity==7.0.0
+tensorflow-gpu==2.5.0
 tensorboard==2.5.0
 tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.8.0
@@ -120,4 +121,3 @@ Werkzeug==2.0.1
 wrapt==1.12.1
 xgboost==1.7.6
 alpha-vantage==2.3.1
-tensorflow-cpu==2.12.0
