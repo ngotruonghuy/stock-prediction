@@ -104,7 +104,6 @@ tenacity==7.0.0
 tensorboard==2.5.0
 tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.8.0
-tensorflow==2.5.0
 tensorflow-estimator==2.5.0
 termcolor==1.1.0
 terminado==0.10.1
@@ -119,3 +118,6 @@ webencodings==0.5.1
 websocket-client==1.1.0
 Werkzeug==2.0.1
 wrapt==1.12.1
+xgboost==1.7.6
+alpha-vantage==2.3.1
+tensorflow-cpu
