@@ -1,4 +1,4 @@
-# stock-prediction
+## stock-prediction
 
 [Đồ án nhóm cuối kì ứng dụng Machine Learning]
 Xây dựng trang DashBoard phân tích trading theo các tiêu chí sau
@@ -16,4 +16,5 @@ c. Dự đoán giá nến(candle) kế tiếp
 ## Thành viên thực hiện
 1. 19120302 - Đoàn Thu Ngân
 2. 19120433 - Lưu Đức Vũ
-Link video demo: https://drive.google.com/drive/u/0/folders/1JbUXsSzVHwqNt2yjm6y9-GT9VQ0uuwR2
+   
+## Link video demo: https://drive.google.com/drive/u/0/folders/1JbUXsSzVHwqNt2yjm6y9-GT9VQ0uuwR2
