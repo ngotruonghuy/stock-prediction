@@ -120,4 +120,4 @@ Werkzeug==2.0.1
 wrapt==1.12.1
 xgboost==1.7.6
 alpha-vantage==2.3.1
-tensorflow-cpu
+tensorflow-cpu==2.12.0
